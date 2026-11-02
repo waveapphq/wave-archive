@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --bg-page: #FAFAF9;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F4F4F3;
+  --text-primary: #0C0A09;
+  --text-secondary: #44403C;
+  --text-muted: #78716C;
+  --border-default: #E7E5E4;
+  --border-strong: #D6D3D1;
+  --accent: #2563EB;
+  --accent-muted: #DBEAFE;
+  --success: #059669;
+  --success-bar: #34D399;
+  --success-bg: #ECFDF5;
+  --error: #DC2626;
+  --error-bar: #EF4444;
+  --error-bg: #FEF2F2;
+  --warn: #D97706;
+  --info: #2563EB;
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+}
+html.dark {
+  --bg-page: #0C0A09;
+  --bg-card: #1C1917;
+  --bg-subtle: #292524;
+  --text-primary: #FAFAF9;
+  --text-secondary: #D6D3D1;
+  --text-muted: #A8A29E;
+  --border-default: #292524;
+  --border-strong: #44403C;
+  --accent: #3B82F6;
+  --accent-muted: #1E3A5F;
+  --success: #34D399;
+  --success-bar: #10B981;
+  --success-bg: #064E3B33;
+  --error: #F87171;
+  --error-bar: #EF4444;
+  --error-bg: #7F1D1D33;
+  --warn: #FBBF24;
+  --info: #3B82F6;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font-family: var(--font-body); background: var(--bg-page); color: var(--text-primary); font-size: 14px; }
+
+/* ---- detail header (app chrome) ---- */
+.rv-header { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px; background: var(--bg-card); border-bottom: 1px solid var(--border-default); }
+.rv-back { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.rv-back:hover { background: var(--bg-subtle); }
+.rv-hicon { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 7px; background: #34D39922; color: #34D399; }
+.rv-hname { font-size: 16px; font-weight: 700; }
+.rv-chip { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border-strong); color: var(--text-secondary); }
+.rv-status { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; color: var(--error); }
+.rv-status .rv-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--error); }
+.rv-spacer { flex: 1; }
+.rv-btn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-primary); font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; }
+.rv-btn:hover { background: var(--bg-subtle); }
+.rv-btn svg { width: 14px; height: 14px; }
+
+/* ---- page body ---- */
+.rv-main { max-width: 1080px; margin: 0 auto; padding: 20px 24px 48px; display: flex; flex-direction: column; gap: 16px; }
+.rv-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 10px; }
+.rv-card-h { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-default); }
+.rv-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-primary); }
+.rv-card-aside { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+
+/* summary */
+.rv-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 24px; padding: 14px 16px; }
+.rv-meta-k { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px; }
+.rv-meta-v { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.rv-meta-v.rv-mono { font-family: var(--font-mono); font-size: 12px; font-weight: 400; }
+.rv-counts { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 4px 16px 16px; }
+.rv-count { border: 1px solid var(--border-default); border-radius: 8px; padding: 10px 12px; background: var(--bg-card); }
+.rv-count-n { font-size: 20px; font-weight: 800; line-height: 1.1; }
+.rv-count-l { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+.rv-n-pass { color: var(--success); }
+.rv-n-fail { color: var(--error); }
+.rv-n-zero { color: var(--text-muted); }
+
+/* timeline */
+.rv-axis { display: flex; justify-content: space-between; padding: 10px 16px 2px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.rv-axis-mid { color: var(--border-strong); flex: 1; border-bottom: 1px dotted var(--border-strong); margin: 0 10px 6px; }
+.rv-gantt { padding: 6px 16px 16px; display: flex; flex-direction: column; gap: 7px; }
+.rv-row { display: grid; grid-template-columns: 280px 1fr 56px; align-items: center; gap: 12px; }
+.rv-row-label { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rv-row-dot { width: 7px; height: 7px; border-radius: 999px; flex: none; }
+.rv-row-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--accent); cursor: pointer; }
+.rv-row-name:hover { text-decoration: underline; }
+.rv-track { position: relative; height: 16px; background: var(--bg-subtle); border-radius: 999px; }
+.rv-bar { position: absolute; top: 2px; bottom: 2px; border-radius: 999px; }
+.rv-row-dur { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: right; }
+
+/* errors */
+.rv-errors { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.rv-err { border: 1px solid var(--error); border-radius: 8px; padding: 10px 14px; background: var(--bg-card); }
+.rv-err-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.rv-err-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 999px; background: var(--error-bg); color: var(--error); }
+.rv-err-path { font-weight: 700; font-size: 13px; }
+.rv-err-time { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.rv-err-msg { font-weight: 600; font-size: 13px; color: var(--error); }
+
+/* logs */
+.rv-loghead-select { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 7px; font-size: 12px; font-weight: 600; background: var(--bg-card); color: var(--text-primary); }
+.rv-logs { font-family: var(--font-mono); font-size: 12px; padding: 8px 0 10px; overflow-x: hidden; }
+.rv-log { display: grid; grid-template-columns: 122px 52px 200px 1fr; gap: 12px; padding: 3px 16px; line-height: 1.55; }
+.rv-log-t { color: var(--text-muted); white-space: nowrap; }
+.rv-log-lvl { font-weight: 700; }
+.rv-log-src { color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-lvl-debug { color: var(--text-muted); } .rv-msg-debug { color: var(--text-secondary); }
+.rv-lvl-info { color: var(--info); } .rv-msg-info { color: var(--text-primary); }
+.rv-lvl-warn { color: var(--warn); } .rv-msg-warn { color: var(--warn); }
+.rv-lvl-error { color: var(--error); } .rv-msg-error { color: var(--error); }
+.rv-log-fatal { background: var(--error-bg); }
+</style>
+</head>
+<body>
+
+<div class="rv-header">
+  <button class="rv-back"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="rv-hicon"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 17v-3"/><path d="M12 17v-6"/><path d="M16 17v-1"/></svg></div>
+  <span class="rv-hname">Nightly API Suite</span>
+  <span class="rv-chip">SUITE</span>
+  <span class="rv-status"><span class="rv-dot"></span>Failed</span>
+  <div class="rv-spacer"></div>
+  <button class="rv-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Download JSON</button>
+  <button class="rv-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>Export HTML</button>
+</div>
+
+<div class="rv-main">
+
+  <!-- Summary -->
+  <div class="rv-card">
+    <div class="rv-card-h">
+      <span class="rv-card-title">Summary</span>
+      <span class="rv-card-aside">Report generated 2026-06-10 11:09:01 PDT</span>
+    </div>
+    <div class="rv-meta">
+      <div><div class="rv-meta-k">Environment</div><div class="rv-meta-v">Local</div></div>
+      <div><div class="rv-meta-k">Triggered By</div><div class="rv-meta-v">will</div></div>
+      <div><div class="rv-meta-k">Started</div><div class="rv-meta-v">2026-06-10 11:06:52 PDT</div></div>
+      <div><div class="rv-meta-k">Duration</div><div class="rv-meta-v">20.8s</div></div>
+      <div><div class="rv-meta-k">Execution ID</div><div class="rv-meta-v rv-mono">f3b9c1e2-7a41-4c2e-b5d6-0a1f9e238842</div></div>
+      <div><div class="rv-meta-k">Ended</div><div class="rv-meta-v">2026-06-10 11:07:13 PDT</div></div>
+    </div>
+    <div class="rv-counts">
+      <div class="rv-count"><div class="rv-count-n">4</div><div class="rv-count-l">Tests</div></div>
+      <div class="rv-count"><div class="rv-count-n rv-n-pass">2</div><div class="rv-count-l">Passed</div></div>
+      <div class="rv-count"><div class="rv-count-n rv-n-fail">2</div><div class="rv-count-l">Failed</div></div>
+      <div class="rv-count"><div class="rv-count-n rv-n-zero">0</div><div class="rv-count-l">Skipped</div></div>
+      <div class="rv-count"><div class="rv-count-n rv-n-zero">0</div><div class="rv-count-l">Stopped</div></div>
+      <div class="rv-count"><div class="rv-count-n rv-n-zero">0</div><div class="rv-count-l">Excluded</div></div>
+      <div class="rv-count"><div class="rv-count-n rv-n-zero">0</div><div class="rv-count-l">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="rv-card">
+    <div class="rv-card-h">
+      <span class="rv-card-title">Timeline</span>
+      <span class="rv-card-aside">4 tests &middot; 20.8s total</span>
+    </div>
+    <div class="rv-axis"><span>11:06:52.610</span><span class="rv-axis-mid"></span><span>11:07:13.401</span></div>
+    <div class="rv-gantt">
+      <div class="rv-row">
+        <div class="rv-row-label"><span class="rv-row-dot" style="background: var(--success)"></span><span class="rv-row-name">Auth Token Refresh</span></div>
+        <div class="rv-track"><div class="rv-bar" style="left:0%; width:20%; background: var(--success-bar)"></div></div>
+        <div class="rv-row-dur">4.2s</div>
+      </div>
+      <div class="rv-row">
+        <div class="rv-row-label"><span class="rv-row-dot" style="background: var(--success)"></span><span class="rv-row-name">Order Pipeline Smoke</span></div>
+        <div class="rv-track"><div class="rv-bar" style="left:20.5%; width:29.5%; background: var(--success-bar)"></div></div>
+        <div class="rv-row-dur">6.1s</div>
+      </div>
+      <div class="rv-row">
+        <div class="rv-row-label"><span class="rv-row-dot" style="background: var(--error)"></span><span class="rv-row-name">Inventory Sync Validation</span></div>
+        <div class="rv-track"><div class="rv-bar" style="left:50.5%; width:21%; background: var(--error-bar)"></div></div>
+        <div class="rv-row-dur">4.4s</div>
+      </div>
+      <div class="rv-row">
+        <div class="rv-row-label"><span class="rv-row-dot" style="background: var(--error)"></span><span class="rv-row-name">Payment Reconciliation</span></div>
+        <div class="rv-track"><div class="rv-bar" style="left:72%; width:28%; background: var(--error-bar)"></div></div>
+        <div class="rv-row-dur">5.9s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div class="rv-card">
+    <div class="rv-card-h">
+      <span class="rv-card-title">Errors</span>
+      <span class="rv-card-aside">2 errors</span>
+    </div>
+    <div class="rv-errors">
+      <div class="rv-err">
+        <div class="rv-err-top">
+          <span class="rv-err-badge">ERROR</span>
+          <span class="rv-err-path">Inventory Sync Validation / Validate_Stock_Levels</span>
+          <span class="rv-err-time">11:07:07.391</span>
+        </div>
+        <div class="rv-err-msg">Downstream validation rejected payload: expected 412 rows, got 409</div>
+      </div>
+      <div class="rv-err">
+        <div class="rv-err-top">
+          <span class="rv-err-badge">FATAL</span>
+          <span class="rv-err-path">Payment Reconciliation / Reconcile_Totals</span>
+          <span class="rv-err-time">11:07:13.350</span>
+        </div>
+        <div class="rv-err-msg">Reconciliation aborted: settlement total mismatch exceeds tolerance (diff 1042.55)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs -->
+  <div class="rv-card">
+    <div class="rv-card-h">
+      <span class="rv-card-title">Logs</span>
+      <span style="margin-left: 12px; font-size: 12px; color: var(--text-muted);">Level:</span>
+      <span class="rv-loghead-select">INFO <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+      <span class="rv-card-aside">14 of 19 entries</span>
+    </div>
+    <div class="rv-logs">
+      <div class="rv-log"><span class="rv-log-t">11:06:52.604 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">SYSTEM</span><span class="rv-msg-info"><b>Suite 'Nightly API Suite' started (4 tests)</b></span></div>
+      <div class="rv-log"><span class="rv-log-t">11:06:52.610 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">SYSTEM</span><span class="rv-msg-info">Test 'Auth Token Refresh' execution started (4 blocks)</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:06:52.611 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">Log : Init</span><span class="rv-msg-info">Connection pool initialized with 8 workers</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:06:56.799 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">SYSTEM</span><span class="rv-msg-info">Test 'Auth Token Refresh' completed successfully</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:06:59.310 PDT</span><span class="rv-log-lvl rv-lvl-warn">WARN</span><span class="rv-log-src">Http : Submit_Order</span><span class="rv-msg-warn">Retrying request after transient timeout (attempt 2/3)</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:07:02.988 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">SYSTEM</span><span class="rv-msg-info">Test 'Order Pipeline Smoke' completed successfully</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:07:06.882 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">Sql : Fetch_Current_Stock</span><span class="rv-msg-info">Query returned in 762ms (1 row)</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:07:07.391 PDT</span><span class="rv-log-lvl rv-lvl-error">ERROR</span><span class="rv-log-src">Assert : Validate_Stock_Levels</span><span class="rv-msg-error">Downstream validation rejected payload: expected 412 rows, got 409</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:07:07.402 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">SYSTEM</span><span class="rv-msg-info">Test 'Inventory Sync Validation' failed after 4.4s</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:07:12.881 PDT</span><span class="rv-log-lvl rv-lvl-warn">WARN</span><span class="rv-log-src">Http : Gateway_Ping</span><span class="rv-msg-warn">Settlement gateway responded slowly (2.9s)</span></div>
+      <div class="rv-log rv-log-fatal"><span class="rv-log-t">11:07:13.350 PDT</span><span class="rv-log-lvl rv-lvl-error">FATAL</span><span class="rv-log-src">Assert : Reconcile_Totals</span><span class="rv-msg-error">Reconciliation aborted: settlement total mismatch exceeds tolerance (diff 1042.55)</span></div>
+      <div class="rv-log"><span class="rv-log-t">11:07:13.401 PDT</span><span class="rv-log-lvl rv-lvl-info">INFO</span><span class="rv-log-src">SYSTEM</span><span class="rv-msg-info"><b>Suite 'Nightly API Suite' finished: 2 passed, 2 failed (20.8s)</b></span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

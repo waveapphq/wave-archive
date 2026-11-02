@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WAVE Execution Report - Inventory Sync Validation</title>
+<style>
+  :root {
+    --rpt-bg: #FFFFFF;
+    --rpt-bg-subtle: #F4F4F3;
+    --rpt-text: #0C0A09;
+    --rpt-text-secondary: #44403C;
+    --rpt-muted: #78716C;
+    --rpt-border: #E7E5E4;
+    --rpt-border-strong: #D6D3D1;
+    --rpt-accent: #2563EB;
+    --rpt-success: #166534;
+    --rpt-success-dot: #22C55E;
+    --rpt-success-bg: #DCFCE7;
+    --rpt-error: #DC2626;
+    --rpt-error-bg: #FEE2E2;
+    --rpt-warn: #B45309;
+    --rpt-info: #155E75;
+    --rpt-debug: #78716C;
+    --rpt-fatal: #991B1B;
+    --rpt-suite: #F59E0B;
+    --rpt-test: #4ADE80;
+    --rpt-tip-bg: #0C0A09;
+    --rpt-tip-text: #FAFAF9;
+  }
+  html.dark {
+    --rpt-bg: #0C0A09;
+    --rpt-bg-subtle: #1C1917;
+    --rpt-text: #FAFAF9;
+    --rpt-text-secondary: #D6D3D1;
+    --rpt-muted: #A8A29E;
+    --rpt-border: #292524;
+    --rpt-border-strong: #44403C;
+    --rpt-accent: #3B82F6;
+    --rpt-success: #4ADE80;
+    --rpt-success-dot: #22C55E;
+    --rpt-success-bg: #052E16;
+    --rpt-error: #F87171;
+    --rpt-error-bg: #450A0A;
+    --rpt-warn: #FBBF24;
+    --rpt-info: #22D3EE;
+    --rpt-debug: #A8A29E;
+    --rpt-fatal: #F87171;
+    --rpt-suite: #F59E0B;
+    --rpt-test: #4ADE80;
+    --rpt-tip-bg: #FAFAF9;
+    --rpt-tip-text: #0C0A09;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--rpt-bg);
+    color: var(--rpt-text);
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .rpt-page { max-width: 1080px; margin: 0 auto; padding: 32px 40px 64px; }
+
+  /* Header */
+  .rpt-brandrow { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--rpt-border); }
+  .rpt-brandright { display: flex; align-items: center; gap: 14px; }
+  .rpt-themebtn { background: none; border: 1px solid var(--rpt-border-strong); border-radius: 8px; padding: 4px 6px; color: var(--rpt-muted); cursor: pointer; display: inline-flex; align-items: center; }
+  .rpt-themebtn:hover { color: var(--rpt-text-secondary); background: var(--rpt-bg-subtle); }
+  .rpt-themebtn .rpt-ic-sun { display: none; }
+  html.dark .rpt-themebtn .rpt-ic-sun { display: block; }
+  html.dark .rpt-themebtn .rpt-ic-moon { display: none; }
+  .rpt-brand { display: flex; align-items: baseline; gap: 10px; }
+  .rpt-wordmark { font-weight: 800; font-size: 18px; letter-spacing: 0.02em; }
+  .rpt-doctype { color: var(--rpt-muted); font-size: 13px; }
+  .rpt-status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .rpt-status .rpt-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .rpt-status-passed { color: var(--rpt-success); } .rpt-status-passed .rpt-dot { background: var(--rpt-success-dot); }
+  .rpt-status-failed { color: var(--rpt-error); } .rpt-status-failed .rpt-dot { background: var(--rpt-error); }
+  .rpt-status-skipped { color: var(--rpt-muted); } .rpt-status-skipped .rpt-dot { background: var(--rpt-muted); }
+  .rpt-titlerow { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 4px; }
+  .rpt-titlegroup { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .rpt-entityicon { flex: 0 0 auto; color: var(--rpt-test); display: inline-flex; }
+  .rpt-title { font-size: 24px; font-weight: 700; margin: 0; }
+  .rpt-entitychip { font-size: 12px; font-weight: 600; color: var(--rpt-text-secondary); background: var(--rpt-bg-subtle); border: 1px solid var(--rpt-border); border-radius: 999px; padding: 2px 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .rpt-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 24px; margin: 16px 0 0; padding: 16px; background: var(--rpt-bg-subtle); border: 1px solid var(--rpt-border); border-radius: 10px; }
+  .rpt-meta div { min-width: 0; }
+  .rpt-meta .rpt-span2 { grid-column: span 2; }
+  .rpt-meta dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rpt-muted); margin: 0 0 2px; }
+  .rpt-meta dd { margin: 0; font-weight: 600; color: var(--rpt-text-secondary); font-size: 13px; }
+  .rpt-meta dd + dd { margin-top: 2px; }
+  .rpt-meta .rpt-sublbl { display: inline-block; width: 52px; font-size: 11px; font-weight: 500; color: var(--rpt-muted); }
+
+  /* Sections */
+  .rpt-section { margin-top: 36px; }
+  .rpt-h2 { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--rpt-text-secondary); margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; }
+
+  /* Test results cards */
+  .rpt-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .rpt-card { border: 1px solid var(--rpt-border); border-radius: 10px; padding: 12px 14px; background: var(--rpt-bg); }
+  .rpt-card .rpt-num { font-size: 22px; font-weight: 800; line-height: 1.1; }
+  .rpt-card .rpt-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rpt-muted); margin-top: 2px; }
+  .rpt-card-passed .rpt-num { color: var(--rpt-success); }
+  .rpt-card-failed .rpt-num { color: var(--rpt-error); }
+  .rpt-card-total .rpt-num { color: var(--rpt-text); }
+  .rpt-card-muted .rpt-num { color: var(--rpt-muted); }
+
+  /* Timeline table */
+  .rpt-table { width: 100%; border-collapse: collapse; border: 1px solid var(--rpt-border); border-radius: 10px; overflow: hidden; }
+  .rpt-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rpt-muted); background: var(--rpt-bg-subtle); padding: 8px 12px; border-bottom: 1px solid var(--rpt-border); }
+  .rpt-table td { padding: 9px 12px; border-bottom: 1px solid var(--rpt-border); font-size: 13px; vertical-align: middle; }
+  .rpt-table tr:last-child td { border-bottom: none; }
+  .rpt-ordercol { width: 44px; color: var(--rpt-muted); }
+  .rpt-mono { font-family: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: 12px; color: var(--rpt-text-secondary); }
+
+  /* Timeline chart (full width, collapsible) */
+  .rpt-chart { border: 1px solid var(--rpt-border); border-radius: 10px; background: var(--rpt-bg); margin-top: 14px; }
+  .rpt-chart summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rpt-muted); user-select: none; }
+  .rpt-chart summary::-webkit-details-marker { display: none; }
+  .rpt-chart summary .rpt-chev { transition: transform 0.15s; font-size: 10px; }
+  .rpt-chart[open] summary .rpt-chev { transform: rotate(90deg); }
+  .rpt-chart-body { padding: 2px 16px 14px; }
+  .rpt-gantt-head { display: flex; align-items: center; gap: 12px; padding: 0 6px 8px; border-bottom: 1px dashed var(--rpt-border); margin-bottom: 10px; }
+  .rpt-gantt-collbl { flex: 0 0 44px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rpt-muted); }
+  .rpt-gantt-axis { display: flex; flex: 1; justify-content: space-between; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; color: var(--rpt-muted); }
+  .rpt-gantt-head .rpt-gantt-dur { flex: 0 0 48px; }
+  .rpt-gantt-row { position: relative; display: flex; align-items: center; gap: 12px; padding: 3px 6px; border-radius: 6px; }
+  .rpt-gantt-row:hover { background: var(--rpt-bg-subtle); }
+  .rpt-gantt-label { flex: 0 0 44px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; white-space: nowrap; color: var(--rpt-text-secondary); }
+  .rpt-gantt-track { position: relative; flex: 1; height: 10px; border-radius: 5px; background: var(--rpt-bg-subtle); border: 1px solid var(--rpt-border); }
+  .rpt-gantt-row:hover .rpt-gantt-track { background: var(--rpt-bg); }
+  .rpt-gantt-fill { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+  .rpt-gantt-fill-passed { background: var(--rpt-success-dot); opacity: 0.75; }
+  .rpt-gantt-fill-failed { background: var(--rpt-error); opacity: 0.8; }
+  .rpt-gantt-fill-skipped { background: var(--rpt-muted); opacity: 0.5; }
+  .rpt-gantt-dur { flex: 0 0 48px; text-align: right; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; color: var(--rpt-muted); }
+  .rpt-gantt-tip { display: none; position: absolute; bottom: calc(100% + 2px); left: 6px; background: var(--rpt-tip-bg); color: var(--rpt-tip-text); padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; z-index: 10; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+  .rpt-gantt-row:hover .rpt-gantt-tip { display: block; }
+
+  /* Errors */
+  .rpt-errorcard { border: 1px solid var(--rpt-border); border-left: 3px solid var(--rpt-error); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--rpt-bg); }
+  .rpt-errorhead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .rpt-lvl { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 5px; }
+  .rpt-lvl-error { color: var(--rpt-error); background: var(--rpt-error-bg); }
+  .rpt-lvl-fatal { color: var(--rpt-fatal); background: var(--rpt-error-bg); outline: 1px solid var(--rpt-error); }
+  .rpt-errorpath { font-weight: 600; color: var(--rpt-text-secondary); font-size: 13px; }
+  .rpt-errortime { margin-left: auto; color: var(--rpt-muted); font-size: 12px; font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .rpt-errormsg { margin: 8px 0 0; font-size: 14px; font-weight: 600; color: var(--rpt-error); }
+
+  /* Logs */
+  .rpt-logctl { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--rpt-muted); text-transform: none; letter-spacing: normal; }
+  .rpt-logctl select { font: inherit; font-weight: 600; color: var(--rpt-text-secondary); background: var(--rpt-bg); border: 1px solid var(--rpt-border-strong); border-radius: 8px; padding: 3px 8px; }
+  .rpt-cols { position: relative; }
+  .rpt-cols summary { list-style: none; cursor: pointer; font: inherit; font-weight: 600; color: var(--rpt-text-secondary); background: var(--rpt-bg); border: 1px solid var(--rpt-border-strong); border-radius: 8px; padding: 3px 8px; user-select: none; }
+  .rpt-cols summary::-webkit-details-marker { display: none; }
+  .rpt-cols-menu { position: absolute; right: 0; top: calc(100% + 4px); background: var(--rpt-bg); border: 1px solid var(--rpt-border); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; z-index: 20; box-shadow: 0 4px 14px rgba(0,0,0,0.15); min-width: 110px; }
+  .rpt-cols-menu label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--rpt-text-secondary); }
+  .rpt-logwrap { border: 1px solid var(--rpt-border); border-radius: 10px; background: var(--rpt-bg); overflow-x: auto; }
+  .rpt-log { width: 100%; border-collapse: collapse; font-family: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: 12px; line-height: 1.7; }
+  .rpt-log th { text-align: left; font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rpt-muted); background: var(--rpt-bg-subtle); padding: 6px 12px; border-bottom: 1px solid var(--rpt-border); }
+  .rpt-log td { padding: 2px 12px; vertical-align: top; }
+  .rpt-col-ts { white-space: nowrap; }
+  td.rpt-col-ts { opacity: 0.6; }
+  .rpt-col-lvl { white-space: nowrap; }
+  td.rpt-col-lvl { font-weight: 700; }
+  .rpt-col-src { max-width: 30ch; overflow-wrap: break-word; }
+  td.rpt-col-src { opacity: 0.7; }
+  .rpt-col-msg { width: 100%; white-space: pre-wrap; word-break: break-word; }
+  .rpt-log.rpt-hide-ts .rpt-col-ts, .rpt-log.rpt-hide-lvl .rpt-col-lvl, .rpt-log.rpt-hide-src .rpt-col-src { display: none; }
+  .rpt-row-DEBUG { color: var(--rpt-debug); }
+  .rpt-row-INFO { color: var(--rpt-info); }
+  .rpt-row-WARN { color: var(--rpt-warn); }
+  .rpt-row-ERROR { color: var(--rpt-error); }
+  .rpt-row-FATAL { color: var(--rpt-fatal); background: var(--rpt-error-bg); }
+  .rpt-row-banner { color: var(--rpt-text-secondary); font-weight: 700; }
+  .rpt-row[hidden] { display: none; }
+
+  .rpt-empty { border: 1px dashed var(--rpt-border-strong); border-radius: 10px; padding: 14px 16px; color: var(--rpt-muted); font-size: 13px; }
+
+  /* Footer */
+  .rpt-footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rpt-border); color: var(--rpt-muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="rpt-page">
+
+  <div class="rpt-header">
+  <div class="rpt-brandrow">
+    <div class="rpt-brand">
+      <span class="rpt-wordmark">WAVE</span>
+      <span class="rpt-doctype">Execution Report</span>
+    </div>
+    <div class="rpt-brandright">
+      <span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span>
+      <button class="rpt-themebtn" id="rpt-theme" aria-label="Toggle theme" title="Toggle theme">
+        <svg class="rpt-ic-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <svg class="rpt-ic-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="rpt-titlerow">
+    <div class="rpt-titlegroup">
+      <span class="rpt-entityicon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01v0a2.83 2.83 0 0 1 0-4L17 3"/>
+          <path d="m16 2 6 6"/>
+          <path d="M12 16H4"/>
+        </svg>
+      </span>
+      <h1 class="rpt-title">Inventory Sync Validation</h1>
+    </div>
+    <span class="rpt-entitychip">Test</span>
+  </div>
+
+  <dl class="rpt-meta">
+    <div><dt>Environment</dt><dd>Local</dd></div>
+    <div><dt>Triggered by</dt><dd>will</dd></div>
+    <div><dt>Started</dt><dd>2026-06-10 11:06:52 PDT</dd></div>
+    <div><dt>Duration</dt><dd>9.4s</dd></div>
+    <div><dt>Execution ID</dt><dd class="rpt-mono">c2e7a4f8-1d93-4b6a-8c25-7e0d4f9a1b36</dd></div>
+    <div><dt>Ended</dt><dd>2026-06-10 11:07:02 PDT</dd></div>
+  </dl>
+  </div>
+
+  <div class="rpt-section">
+    <h2 class="rpt-h2">Block Results</h2>
+    <div class="rpt-cards">
+      <div class="rpt-card rpt-card-total"><div class="rpt-num">11</div><div class="rpt-lbl">Blocks</div></div>
+      <div class="rpt-card rpt-card-passed"><div class="rpt-num">11</div><div class="rpt-lbl">Passed</div></div>
+      <div class="rpt-card rpt-card-muted"><div class="rpt-num">0</div><div class="rpt-lbl">Failed</div></div>
+      <div class="rpt-card rpt-card-muted"><div class="rpt-num">0</div><div class="rpt-lbl">Skipped</div></div>
+      <div class="rpt-card rpt-card-muted"><div class="rpt-num">0</div><div class="rpt-lbl">Stopped</div></div>
+      <div class="rpt-card rpt-card-muted"><div class="rpt-num">0</div><div class="rpt-lbl">Not Run</div></div>
+    </div>
+  </div>
+
+  <div class="rpt-section">
+    <h2 class="rpt-h2">Timeline</h2>
+    <table class="rpt-table">
+      <thead>
+        <tr><th class="rpt-ordercol">#</th><th>Block</th><th>Status</th><th>Started</th><th>Duration</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">1</td>
+          <td>Init_Session</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:52.610</td>
+          <td class="rpt-mono">0.1s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">2</td>
+          <td>Load_Fixtures</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:52.760</td>
+          <td class="rpt-mono">0.4s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">3</td>
+          <td>Fetch_Token</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:53.210</td>
+          <td class="rpt-mono">0.8s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">4</td>
+          <td>Query_Stock_Levels</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:54.060</td>
+          <td class="rpt-mono">1.6s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">5</td>
+          <td>Transform_Payload</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:55.710</td>
+          <td class="rpt-mono">0.2s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">6</td>
+          <td>Submit_Snapshot</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:55.960</td>
+          <td class="rpt-mono">1.9s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">7</td>
+          <td>Poll_Sync_Status</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:57.910</td>
+          <td class="rpt-mono">3.1s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">8</td>
+          <td>Poll_Sync_Status / Fetch_Status</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:06:58.060</td>
+          <td class="rpt-mono">2.6s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">9</td>
+          <td>Poll_Sync_Status / Eval_Complete</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:07:00.710</td>
+          <td class="rpt-mono">0.3s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">10</td>
+          <td>Validate_Stock_Levels</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:07:01.060</td>
+          <td class="rpt-mono">0.6s</td>
+        </tr>
+        <tr>
+          <td class="rpt-ordercol rpt-mono">11</td>
+          <td>Log_Summary</td>
+          <td><span class="rpt-status rpt-status-passed"><span class="rpt-dot"></span>Passed</span></td>
+          <td class="rpt-mono">11:07:01.710</td>
+          <td class="rpt-mono">0.1s</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details class="rpt-chart" open>
+      <summary><span class="rpt-chev">&#9654;</span>Timeline Chart</summary>
+      <div class="rpt-chart-body">
+        <div class="rpt-gantt-head">
+          <span class="rpt-gantt-collbl">Block</span>
+          <span class="rpt-gantt-axis"><span>11:06:52.610</span><span>11:07:02.018</span></span>
+          <span class="rpt-gantt-dur"></span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">1 &middot; Init_Session</span>
+          <span class="rpt-gantt-label">1</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:0.0%;width:1.1%"></span></span>
+          <span class="rpt-gantt-dur">0.1s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">2 &middot; Load_Fixtures</span>
+          <span class="rpt-gantt-label">2</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:1.6%;width:4.3%"></span></span>
+          <span class="rpt-gantt-dur">0.4s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">3 &middot; Fetch_Token</span>
+          <span class="rpt-gantt-label">3</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:6.4%;width:8.5%"></span></span>
+          <span class="rpt-gantt-dur">0.8s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">4 &middot; Query_Stock_Levels</span>
+          <span class="rpt-gantt-label">4</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:15.4%;width:17.0%"></span></span>
+          <span class="rpt-gantt-dur">1.6s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">5 &middot; Transform_Payload</span>
+          <span class="rpt-gantt-label">5</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:33.0%;width:2.1%"></span></span>
+          <span class="rpt-gantt-dur">0.2s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">6 &middot; Submit_Snapshot</span>
+          <span class="rpt-gantt-label">6</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:35.6%;width:20.2%"></span></span>
+          <span class="rpt-gantt-dur">1.9s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">7 &middot; Poll_Sync_Status</span>
+          <span class="rpt-gantt-label">7</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:56.4%;width:33.0%"></span></span>
+          <span class="rpt-gantt-dur">3.1s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">8 &middot; Poll_Sync_Status / Fetch_Status</span>
+          <span class="rpt-gantt-label">8</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:58.0%;width:27.7%"></span></span>
+          <span class="rpt-gantt-dur">2.6s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">9 &middot; Poll_Sync_Status / Eval_Complete</span>
+          <span class="rpt-gantt-label">9</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:86.2%;width:3.2%"></span></span>
+          <span class="rpt-gantt-dur">0.3s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">10 &middot; Validate_Stock_Levels</span>
+          <span class="rpt-gantt-label">10</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:89.9%;width:6.4%"></span></span>
+          <span class="rpt-gantt-dur">0.6s</span>
+        </div>
+        <div class="rpt-gantt-row">
+          <span class="rpt-gantt-tip">11 &middot; Log_Summary</span>
+          <span class="rpt-gantt-label">11</span>
+          <span class="rpt-gantt-track"><span class="rpt-gantt-fill rpt-gantt-fill-passed" style="left:96.8%;width:1.1%"></span></span>
+          <span class="rpt-gantt-dur">0.1s</span>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="rpt-section">
+    <h2 class="rpt-h2">Errors <span class="rpt-logctl">0 errors</span></h2>
+    <div class="rpt-empty">No errors. All blocks passed.</div>
+  </div>
+
+  <div class="rpt-section">
+    <h2 class="rpt-h2">Logs
+      <span class="rpt-logctl">
+        <label for="rpt-level">Level:</label>
+        <select id="rpt-level">
+          <option selected>DEBUG</option>
+          <option>INFO</option>
+          <option>WARN</option>
+          <option>ERROR</option>
+          <option>FATAL</option>
+        </select>
+        <details class="rpt-cols">
+          <summary>Columns</summary>
+          <div class="rpt-cols-menu">
+            <label><input type="checkbox" checked data-col="ts"> Time</label>
+            <label><input type="checkbox" checked data-col="lvl"> Level</label>
+            <label><input type="checkbox" checked data-col="src"> Source</label>
+          </div>
+        </details>
+        <span id="rpt-logcount">15 entries</span>
+      </span>
+    </h2>
+    <div class="rpt-logwrap">
+            <table class="rpt-log" id="rpt-logtable">
+        <thead>
+          <tr><th class="rpt-col-ts">Time</th><th class="rpt-col-lvl">Level</th><th class="rpt-col-src">Source</th><th class="rpt-col-msg">Message</th></tr>
+        </thead>
+        <tbody id="rpt-logbody">
+        <tr class="rpt-row rpt-row-banner" data-level="INFO"><td class="rpt-col-ts">11:06:52.610 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">SYSTEM</td><td class="rpt-col-msg">Test 'Inventory Sync Validation' execution started (11 blocks)</td></tr>
+        <tr class="rpt-row rpt-row-DEBUG" data-level="DEBUG"><td class="rpt-col-ts">11:06:52.624 PDT</td><td class="rpt-col-lvl">DEBUG</td><td class="rpt-col-src">VarSet : Init_Session</td><td class="rpt-col-msg">Set 4 variables (snapshot_date, region, batch_id, tolerance)</td></tr>
+        <tr class="rpt-row rpt-row-DEBUG" data-level="DEBUG"><td class="rpt-col-ts">11:06:52.799 PDT</td><td class="rpt-col-lvl">DEBUG</td><td class="rpt-col-src">File : Load_Fixtures</td><td class="rpt-col-msg">Read testdata://fixtures/stock-baseline.json (48 KB)</td></tr>
+        <tr class="rpt-row rpt-row-INFO" data-level="INFO"><td class="rpt-col-ts">11:06:53.391 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">Http : Fetch_Token</td><td class="rpt-col-msg">POST /oauth/token -> 200 (118ms)</td></tr>
+        <tr class="rpt-row rpt-row-DEBUG" data-level="DEBUG"><td class="rpt-col-ts">11:06:54.122 PDT</td><td class="rpt-col-lvl">DEBUG</td><td class="rpt-col-src">Sql : Query_Stock_Levels</td><td class="rpt-col-msg">Executing 'SELECT sku, qty FROM stock_levels WHERE region = :region'</td></tr>
+        <tr class="rpt-row rpt-row-INFO" data-level="INFO"><td class="rpt-col-ts">11:06:55.681 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">Sql : Query_Stock_Levels</td><td class="rpt-col-msg">Query returned in 1.55s (412 rows)</td></tr>
+        <tr class="rpt-row rpt-row-DEBUG" data-level="DEBUG"><td class="rpt-col-ts">11:06:55.762 PDT</td><td class="rpt-col-lvl">DEBUG</td><td class="rpt-col-src">Json : Transform_Payload</td><td class="rpt-col-msg">Mapped 412 rows to snapshot payload (schema v3)</td></tr>
+        <tr class="rpt-row rpt-row-WARN" data-level="WARN"><td class="rpt-col-ts">11:06:56.733 PDT</td><td class="rpt-col-lvl">WARN</td><td class="rpt-col-src">Http : Submit_Snapshot</td><td class="rpt-col-msg">Retrying request after transient timeout (attempt 2/3)</td></tr>
+        <tr class="rpt-row rpt-row-INFO" data-level="INFO"><td class="rpt-col-ts">11:06:57.871 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">Http : Submit_Snapshot</td><td class="rpt-col-msg">PUT /inventory/snapshots -> 202 (388ms)</td></tr>
+        <tr class="rpt-row rpt-row-DEBUG" data-level="DEBUG"><td class="rpt-col-ts">11:06:58.140 PDT</td><td class="rpt-col-lvl">DEBUG</td><td class="rpt-col-src">While : Poll_Sync_Status</td><td class="rpt-col-msg">Iteration 1: sync status pending</td></tr>
+        <tr class="rpt-row rpt-row-DEBUG" data-level="DEBUG"><td class="rpt-col-ts">11:07:00.166 PDT</td><td class="rpt-col-lvl">DEBUG</td><td class="rpt-col-src">While : Poll_Sync_Status</td><td class="rpt-col-msg">Iteration 2: sync status processing</td></tr>
+        <tr class="rpt-row rpt-row-INFO" data-level="INFO"><td class="rpt-col-ts">11:07:01.040 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">While : Poll_Sync_Status</td><td class="rpt-col-msg">Iteration 3: sync status complete (3 iterations)</td></tr>
+        <tr class="rpt-row rpt-row-INFO" data-level="INFO"><td class="rpt-col-ts">11:07:01.652 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">Assert : Validate_Stock_Levels</td><td class="rpt-col-msg">Assertion passed: snapshot row count 412 == source row count 412</td></tr>
+        <tr class="rpt-row rpt-row-INFO" data-level="INFO"><td class="rpt-col-ts">11:07:01.731 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">Log : Log_Summary</td><td class="rpt-col-msg">Inventory sync validated for region us-west (412 SKUs, 0 mismatches)</td></tr>
+        <tr class="rpt-row rpt-row-banner" data-level="INFO"><td class="rpt-col-ts">11:07:02.018 PDT</td><td class="rpt-col-lvl">INFO</td><td class="rpt-col-src">SYSTEM</td><td class="rpt-col-msg">Test 'Inventory Sync Validation' completed successfully</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rpt-footer">
+    <span>Generated by WAVE</span>
+  </div>
+
+</div>
+<script>
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.classList.add('dark');
+  }
+  document.getElementById('rpt-theme').addEventListener('click', function () {
+    document.documentElement.classList.toggle('dark');
+  });
+  document.querySelectorAll('.rpt-cols input[data-col]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      document.getElementById('rpt-logtable').classList.toggle('rpt-hide-' + cb.dataset.col, !cb.checked);
+    });
+  });
+  (function () {
+    var order = ['DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'];
+    var sel = document.getElementById('rpt-level');
+    var rows = document.querySelectorAll('#rpt-logbody .rpt-row');
+    var count = document.getElementById('rpt-logcount');
+    sel.addEventListener('change', function () {
+      var min = order.indexOf(sel.value);
+      var visible = 0;
+      rows.forEach(function (r) {
+        var show = order.indexOf(r.dataset.level) >= min;
+        r.hidden = !show;
+        if (show) visible++;
+      });
+      count.textContent = visible + (visible === 1 ? ' entry' : ' entries');
+    });
+  })();
+</script>
+</body>
+</html>
